@@ -32,3 +32,5 @@ void	Fixed::setRawBits(const int raw) {
 	std::cout << "setRawBits member function called\n";
 	_bits = raw;
 }
+
+const int	Fixed::_point = 8;

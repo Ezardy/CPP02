@@ -23,17 +23,11 @@
 		return success;\
 	}
 
-static bool	copy_assignment(void);
-static bool	set_raw_bits(void);
-static bool	ex00_default_test(void);
 static bool	ex01_default_test(void);
 
 int	main() {
 	bool	success = true;
 	bool	(*tests[])(void) = {
-		copy_assignment,
-		set_raw_bits,
-		ex00_default_test,
 		ex01_default_test
 	};
 	size_t	tests_count = sizeof(tests) / sizeof(tests[0]);
@@ -84,69 +78,4 @@ TEST_LOGIC_START(ex01_default_test) {
 		"Destructor called\n"
 		"Destructor called\n"
 		"Destructor called\n";
-TEST_LOGIC_END
-
-TEST_LOGIC_START(ex00_default_test)
-	{
-		Fixed a;
-		Fixed b( a );
-		Fixed c;
-		c = b;
-		std::cout << a.getRawBits() << std::endl;
-		std::cout << b.getRawBits() << std::endl;
-		std::cout << c.getRawBits() << std::endl;
-	}
-	expected = "Default constructor called\n"
-		"Copy constructor called\n"
-		"Copy assignment operator called\n"
-		"getRawBits member function called\n"
-		"Default constructor called\n"
-		"Copy assignment operator called\n"
-		"getRawBits member function called\n"
-		"getRawBits member function called\n"
-		"0\n"
-		"getRawBits member function called\n"
-		"0\n"
-		"getRawBits member function called\n"
-		"0\n"
-		"Destructor called\n"
-		"Destructor called\n"
-		"Destructor called\n";
-TEST_LOGIC_END
-
-TEST_LOGIC_START(set_raw_bits)
-	{
-		Fixed	a;
-		a.setRawBits(124);
-		Fixed	b = a;
-		Fixed	c;
-		c = b;
-		std::cout << a.getRawBits() << b.getRawBits() << c.getRawBits() << '\n';
-	}
-	expected = "Default constructor called\n"
-		"setRawBits member function called\n"
-		"Copy constructor called\n"
-		"Copy assignment operator called\n"
-		"getRawBits member function called\n"
-		"Default constructor called\n"
-		"Copy assignment operator called\n"
-		"getRawBits member function called\n"
-		"getRawBits member function called\n"
-		"124getRawBits member function called\n"
-		"124getRawBits member function called\n124\nDestructor called\n"
-		"Destructor called\nDestructor called\n";
-TEST_LOGIC_END
-
-TEST_LOGIC_START(copy_assignment)
-	{
-		Fixed	a;
-		Fixed	b = a;
-		Fixed	&ra = a;
-		a = ra;
-	}
-	expected = "Default constructor called\n"
-		"Copy constructor called\n"
-		"Copy assignment operator called\n"
-		"getRawBits member function called\n"
-		"Destructor called\nDestructor called\n";
 TEST_LOGIC_END

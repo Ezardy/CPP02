@@ -1,5 +1,6 @@
 #include <iostream>
 #include <limits>
+#include <cmath>
 #include <ieee754.h>
 
 #include "Fixed.hpp"
@@ -21,24 +22,27 @@ Fixed::Fixed(const int number) : _bits(number << _point) {
 }
 
 Fixed::Fixed(const float number) : _bits(0) {
-	const union ieee754_float	*fp
-		= reinterpret_cast<const union ieee754_float *>(&number);
-	short	e = fp->ieee.exponent
-		- std::numeric_limits<float>::max_exponent + 1;
+	union ieee754_float	fp;
 
+	fp.f = number;
+	short	e = fp.ieee.exponent
+		- std::numeric_limits<float>::max_exponent + 1;
 	if (number != 0 && e > - _point - 1) {
-		if (fp->ieee.exponent == ~'\0')
+		if (fp.ieee.exponent == ~'\0')
 			throw std::invalid_argument("Presented float is NAN or INF");
 		else if (e > static_cast<int>(sizeof(float)) * 8 - _point - 1
 				|| (e == static_cast<int>(sizeof(float)) * 8 - _point - 1
-					&& !fp->ieee.negative))
+					&& !fp.ieee.negative))
 			throw std::overflow_error(
 				"Presented float is out of the Fixed type's range"
 			);
 		else {
 			std::cout << "Float constructor called\n";
-			_bits = fp->ieee.mantissa | 1 << 23;
-			bool	must_reverse = fp->ieee.negative
+			fp.ieee.exponent += 8;
+			fp.f = roundf(fp.f);
+			_bits = fp.ieee.mantissa | 1 << 23;
+
+			bool	must_reverse = fp.ieee.negative
 				&& e < static_cast<int>(sizeof(float)) * 8 - _point - 1;
 			e -= std::numeric_limits<float>::digits - _point - 1;
 			if (e > 0)
@@ -64,12 +68,10 @@ Fixed	&Fixed::operator=(const Fixed &other) {
 }
 
 int	Fixed::getRawBits(void) const {
-	std::cout << "getRawBits member function called\n";
 	return _bits;
 }
 
 void	Fixed::setRawBits(const int raw) {
-	std::cout << "setRawBits member function called\n";
 	_bits = raw;
 }
 

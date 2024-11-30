@@ -1,6 +1,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <limits>
 
 #include "Fixed.hpp"
 
@@ -24,10 +25,18 @@
 	}
 
 static bool	ex01_default_test(void);
+static bool	negatives(void);
+static bool	float_special_cases(void);
+static bool	int_overflows(void);
+//static bool	float_overflows(void);
 
 int	main() {
 	bool	success = true;
 	bool	(*tests[])(void) = {
+		negatives,
+		float_special_cases,
+		int_overflows,
+		//float_overflows,
 		ex01_default_test
 	};
 	size_t	tests_count = sizeof(tests) / sizeof(tests[0]);
@@ -39,6 +48,78 @@ int	main() {
 		std::cout << "OK\n";
 	return success;
 }
+
+TEST_LOGIC_START(int_overflows)
+	try {
+		Fixed	a(-8388609);
+		std::cout << a << '\n';
+	} catch (const std::overflow_error &e) {
+		std::cout << e.what() << '\n';
+	}
+	try {
+		Fixed	a(8388608);
+		std::cout << a << '\n';
+	} catch (const std::overflow_error &e) {
+		std::cout << e.what() << '\n';
+	}
+	Fixed	a(8388607);
+	std::cout << a << '\n';
+
+	expected = "The integer is too big for the Fixed type\n"
+		"The integer is too big for the Fixed type\n"
+		"Int constructor called\n8388607\n";
+TEST_LOGIC_END
+
+TEST_LOGIC_START(float_special_cases)
+	try {
+		const Fixed	a(-std::numeric_limits<float>::quiet_NaN());
+	} catch (const std::invalid_argument &e) {
+		std::cout << e.what() << '\n';
+	}
+	try {
+		const Fixed	a(std::numeric_limits<float>::quiet_NaN());
+	} catch (const std::invalid_argument &e) {
+		std::cout << e.what() << '\n';
+	}
+	try {
+		const Fixed	a(-std::numeric_limits<float>::signaling_NaN());
+	} catch (const std::invalid_argument &e) {
+		std::cout << e.what() << '\n';
+	}
+	try {
+		const Fixed	a(std::numeric_limits<float>::signaling_NaN());
+	} catch (const std::invalid_argument &e) {
+		std::cout << e.what() << '\n';
+	}
+	try {
+		const Fixed	a(std::numeric_limits<float>::infinity());
+	} catch (const std::invalid_argument &e) {
+		std::cout << e.what() << '\n';
+	}
+	try {
+		const Fixed	a(-std::numeric_limits<float>::infinity());
+	} catch (const std::invalid_argument &e) {
+		std::cout << e.what() << '\n';
+	}
+
+	expected = "Presented float is NAN or INF\n"
+		"Presented float is NAN or INF\n"
+		"Presented float is NAN or INF\n"
+		"Presented float is NAN or INF\n"
+		"Presented float is NAN or INF\n"
+		"Presented float is NAN or INF\n";
+TEST_LOGIC_END
+
+TEST_LOGIC_START(negatives)
+	const Fixed	a(-8388608);
+	const Fixed	b(-8388608.0f);
+	const Fixed	c(-5);
+
+	std::cout << a << ' ' << b << ' ' << c << '\n';
+
+	expected = "Int constructor called\nFloat constructor called\n"
+		"Int constructor called\n-8388608 -8388608 -5\n";
+TEST_LOGIC_END
 
 TEST_LOGIC_START(ex01_default_test) {
 	Fixed	a;

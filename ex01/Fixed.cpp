@@ -15,7 +15,7 @@ Fixed::Fixed(const Fixed &other) {
 }
 
 Fixed::Fixed(const int number) : _bits(number << _point) {
-	if (number & ~0 << (sizeof(int) * 8 - _point))
+	if (number > Fixed::max || number < Fixed::min)
 		throw std::overflow_error("The integer is too big for the Fixed type");
 	else
 		std::cout << "Int constructor called\n";
@@ -28,20 +28,19 @@ Fixed::Fixed(const float number) : _bits(0) {
 	short	e = fp.ieee.exponent
 		- std::numeric_limits<float>::max_exponent + 1;
 	if (number != 0 && e > - _point - 1) {
-		if (fp.ieee.exponent == ~'\0')
+		if (fp.f != fp.f || fp.f == std::numeric_limits<float>::infinity()
+			|| fp.f == -std::numeric_limits<float>::infinity())
 			throw std::invalid_argument("Presented float is NAN or INF");
-		else if (e > static_cast<int>(sizeof(float)) * 8 - _point - 1
-				|| (e == static_cast<int>(sizeof(float)) * 8 - _point - 1
-					&& !fp.ieee.negative))
+		else if (number > Fixed::max || number < Fixed::min)
 			throw std::overflow_error(
 				"Presented float is out of the Fixed type's range"
 			);
 		else {
 			std::cout << "Float constructor called\n";
-			fp.ieee.exponent += 8;
+			fp.ieee.exponent += _point;
 			fp.f = roundf(fp.f);
-			_bits = fp.ieee.mantissa | 1 << 23;
-
+			_bits = fp.ieee.mantissa
+				| 1 << (std::numeric_limits<float>::digits - 1);
 			bool	must_reverse = fp.ieee.negative
 				&& e < static_cast<int>(sizeof(float)) * 8 - _point - 1;
 			e -= std::numeric_limits<float>::digits - _point - 1;
@@ -83,7 +82,7 @@ float	Fixed::toFloat(void) const {
 	else if (_bits == std::numeric_limits<int>::min()) {
 		fp.ieee.negative = 1;
 		fp.ieee.exponent = std::numeric_limits<float>::max_exponent - 1
-			+ sizeof(int) - _point - 1;
+			+ sizeof(int) * 8 - _point - 1;
 		fp.ieee.mantissa = 0;
 	} else {
 		int		m = _bits;
@@ -112,6 +111,17 @@ int	Fixed::toInt(void) const {
 const int	Fixed::_point = 8;
 
 std::ostream	&operator<<(std::ostream &os, const Fixed &number) {
-	os << number.toFloat();
+	if (number.getRawBits() << (sizeof(int) * 8 - number.getPoint()) == 0)
+		os << number.toInt();
+	else
+		os << number.toFloat();
 	return os;
 }
+
+int	Fixed::getPoint(void) const {
+	return _point;
+}
+
+const int	Fixed::max = ~0u >> (_point + 1);
+
+const int	Fixed::min = ~0u << (sizeof(int) * 8 - _point - 1);

@@ -5,6 +5,9 @@
 
 class Fixed {
 public:
+	static const int	max;
+	static const int	min;
+
 	Fixed(void);
 	Fixed(const int number);
 	Fixed(const float number);
@@ -17,6 +20,7 @@ public:
 	void	setRawBits(const int raw);
 	float	toFloat(void) const;
 	int		toInt(void) const;
+	int		getPoint(void) const;
 private:
 	static const int	_point;
 	int					_bits;

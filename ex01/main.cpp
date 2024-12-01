@@ -28,7 +28,8 @@ static bool	ex01_default_test(void);
 static bool	negatives(void);
 static bool	float_special_cases(void);
 static bool	int_overflows(void);
-//static bool	float_overflows(void);
+static bool	float_overflows(void);
+static bool	zeroes(void);
 
 int	main() {
 	bool	success = true;
@@ -36,7 +37,8 @@ int	main() {
 		negatives,
 		float_special_cases,
 		int_overflows,
-		//float_overflows,
+		float_overflows,
+		zeroes,
 		ex01_default_test
 	};
 	size_t	tests_count = sizeof(tests) / sizeof(tests[0]);
@@ -48,6 +50,42 @@ int	main() {
 		std::cout << "OK\n";
 	return success;
 }
+
+TEST_LOGIC_START(zeroes)
+	Fixed	a(0);
+	Fixed	b(0.0f);
+	Fixed	d(0.00390624f);
+	Fixed	c(0.00390625f);
+
+	std::cout << a << ' ' << b << ' ' << d << ' ' << c << '\n';
+
+	expected = "Int constructor called\n"
+		"Float constructor called\n"
+		"Float constructor called\n"
+		"Float constructor called\n"
+		"0 0 0 0.00390625\n";
+TEST_LOGIC_END
+
+TEST_LOGIC_START(float_overflows)
+	try {
+		Fixed	a(-8388609.0f);
+		std::cout << a << '\n';
+	} catch (const std::overflow_error &e) {
+		std::cout << e.what() << '\n';
+	}
+	try {
+		Fixed	a(8388608.0f);
+		std::cout << a << '\n';
+	} catch (const std::overflow_error &e) {
+		std::cout << e.what() << '\n';
+	}
+	Fixed	a(8388607.0f);
+	std::cout << a << '\n';
+
+	expected = "Presented float is out of the Fixed type's range\n"
+		"Presented float is out of the Fixed type's range\n"
+		"Float constructor called\n8388607\n";
+TEST_LOGIC_END
 
 TEST_LOGIC_START(int_overflows)
 	try {

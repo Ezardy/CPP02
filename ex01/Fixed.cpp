@@ -27,16 +27,16 @@ Fixed::Fixed(const float number) : _bits(0) {
 	fp.f = number;
 	short	e = fp.ieee.exponent
 		- std::numeric_limits<float>::max_exponent + 1;
-	if (number != 0 && e > - _point - 1) {
-		if (fp.f != fp.f || fp.f == std::numeric_limits<float>::infinity()
-			|| fp.f == -std::numeric_limits<float>::infinity())
-			throw std::invalid_argument("Presented float is NAN or INF");
-		else if (number > Fixed::max || number < Fixed::min)
-			throw std::overflow_error(
-				"Presented float is out of the Fixed type's range"
-			);
-		else {
-			std::cout << "Float constructor called\n";
+	if (fp.f != fp.f || fp.f == std::numeric_limits<float>::infinity()
+		|| fp.f == -std::numeric_limits<float>::infinity())
+		throw std::invalid_argument("Presented float is NAN or INF");
+	else if (number > Fixed::max || number < Fixed::min)
+		throw std::overflow_error(
+			"Presented float is out of the Fixed type's range"
+		);
+	else {
+		std::cout << "Float constructor called\n";
+		if (number != 0 && e > - _point - 1) {
 			fp.ieee.exponent += _point;
 			fp.f = roundf(fp.f);
 			_bits = fp.ieee.mantissa
@@ -91,7 +91,8 @@ float	Fixed::toFloat(void) const {
 		if (_bits < 0) {
 			m *= -1;
 			fp.ieee.negative = 1;
-		}
+		} else
+			fp.ieee.negative = 0;
 		for (e = 0; !(m & 1 << std::numeric_limits<int>::digits);
 			m <<= 1, e += 1);
 		m = m << 1

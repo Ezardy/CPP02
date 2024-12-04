@@ -2,11 +2,10 @@
 # define EX01_FIXED_HPP
 
 #include <ostream>
+#include <ieee754.h>
 
 class Fixed {
 public:
-	static const int	max;
-	static const int	min;
 
 	Fixed(void);
 	Fixed(const int number);
@@ -22,6 +21,11 @@ public:
 	int		toInt(void) const;
 	int		getPoint(void) const;
 private:
+	static const int			_max;
+	static const int			_min;
+	static const ieee754_float	_maxf;
+	static const ieee754_float	_minf;
+
 	static const int	_point;
 	int					_bits;
 };

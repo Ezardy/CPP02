@@ -68,23 +68,23 @@ TEST_LOGIC_END
 
 TEST_LOGIC_START(float_overflows)
 	try {
-		Fixed	a(-8388609.0f);
+		Fixed	a(-8388608.6f);
 		std::cout << a << '\n';
 	} catch (const std::overflow_error &e) {
 		std::cout << e.what() << '\n';
 	}
 	try {
-		Fixed	a(8388608.0f);
+		Fixed	a(8388607.8f);
 		std::cout << a << '\n';
 	} catch (const std::overflow_error &e) {
 		std::cout << e.what() << '\n';
 	}
-	Fixed	a(8388607.0f);
+	Fixed	a(8388607.5f);
 	std::cout << a << '\n';
 
 	expected = "Presented float is out of the Fixed type's range\n"
 		"Presented float is out of the Fixed type's range\n"
-		"Float constructor called\n8388607\n";
+		"Float constructor called\n8.38861e+06\n";
 TEST_LOGIC_END
 
 TEST_LOGIC_START(int_overflows)

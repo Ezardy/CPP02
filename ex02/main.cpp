@@ -318,9 +318,10 @@ TEST_LOGIC_START(subtract)
 TEST_LOGIC_END
 
 TEST_LOGIC_START(add)
-	std::cout << (Fixed(-8388608) + Fixed(8388607)) << '\n';
+	std::cout << (Fixed(-8388608) + Fixed(8388607.5f)) << '\n';
 	std::cout << (Fixed(0) + Fixed(0)) << '\n';
 	std::cout << (Fixed(0.125f) + Fixed(999.875f)) << '\n';
+	std::cout << (Fixed(8388607) + Fixed(0.99609375f)) << '\n';
 	try {
 		std::cout << (Fixed(-8388608) + Fixed(-1)) << '\n';
 	} catch (const std::overflow_error &e) {
@@ -332,7 +333,7 @@ TEST_LOGIC_START(add)
 		std::cout << e.what() << '\n';
 	}
 	try {
-		std::cout << (Fixed(8388607) + Fixed(0.00390625f)) << '\n';
+		std::cout << (Fixed(8388607) + Fixed(1.00390625f)) << '\n';
 	} catch (const std::overflow_error &e) {
 		std::cout << e.what() << '\n';
 	}
@@ -342,9 +343,10 @@ TEST_LOGIC_START(add)
 		std::cout << e.what() << '\n';
 	}
 
-	expected = "-1\n"
+	expected = "-0.5\n"
 		"0\n"
 		"1000\n"
+		"8388608\n"
 		"Add operator overflowed\n"
 		"Add operator overflowed\n"
 		"Add operator overflowed\n"
@@ -354,7 +356,7 @@ TEST_LOGIC_END
 TEST_LOGIC_START(ne)
 	Fixed	small_pos(0.00390625f);
 	Fixed	small_neg(-0.00390625f);
-	Fixed	big_pos(8388607);
+	Fixed	big_pos(8388607.5f);
 	Fixed	other_big_pos = big_pos;
 	Fixed	big_neg(-8388608);
 	Fixed	zero(0);
@@ -362,13 +364,13 @@ TEST_LOGIC_START(ne)
 	std::cout << (small_neg != small_pos) << ' ' << (zero != small_neg) << ' '
 		<< (big_neg != big_pos) << ' ' << (zero != zero) << ' '
 		<< (big_pos != other_big_pos) << '\n';
-	expected = "true true true false false\n";
+	expected = "1 1 1 0 0\n";
 TEST_LOGIC_END
 
 TEST_LOGIC_START(eq)
 	Fixed	small_pos(0.00390625f);
 	Fixed	small_neg(-0.00390625f);
-	Fixed	big_pos(8388607);
+	Fixed	big_pos(8388607.5f);
 	Fixed	other_big_pos = big_pos;
 	Fixed	big_neg(-8388608);
 	Fixed	zero(0);
@@ -376,53 +378,53 @@ TEST_LOGIC_START(eq)
 	std::cout << (small_neg == small_pos) << ' ' << (zero == small_neg) << ' '
 		<< (big_neg == big_pos) << ' ' << (zero == zero) << ' '
 		<< (big_pos == other_big_pos) << '\n';
-	expected = "false false false true true\n";
+	expected = "0 0 0 1 1\n";
 TEST_LOGIC_END
 
 TEST_LOGIC_START(ge)
 	Fixed	small_pos(0.00390625f);
 	Fixed	small_neg(-0.00390625f);
-	Fixed	big_pos(8388607);
+	Fixed	big_pos(8388607.5f);
 	Fixed	big_neg(-8388608);
 	Fixed	zero(0);
 
-	std::cout << (small_neg > small_pos) << ' ' << (zero > small_neg) << ' '
-		<< (big_neg > big_pos) << ' ' << (zero > zero) << '\n';
-	expected = "false true false true\n";
+	std::cout << (small_neg >= small_pos) << ' ' << (zero >= small_neg) << ' '
+		<< (big_neg >= big_pos) << ' ' << (zero >= zero) << '\n';
+	expected = "0 1 0 1\n";
 TEST_LOGIC_END
 
 TEST_LOGIC_START(gt)
 	Fixed	small_pos(0.00390625f);
 	Fixed	small_neg(-0.00390625f);
-	Fixed	big_pos(8388607);
+	Fixed	big_pos(8388607.5f);
 	Fixed	big_neg(-8388608);
 	Fixed	zero(0);
 
 	std::cout << (small_neg > small_pos) << ' ' << (zero > small_neg) << ' '
 		<< (big_neg > big_pos) << ' ' << (zero > zero) << '\n';
-	expected = "false true false false\n";
+	expected = "0 1 0 0\n";
 TEST_LOGIC_END
 
 TEST_LOGIC_START(le)
 	Fixed	small_pos(0.00390625f);
 	Fixed	small_neg(-0.00390625f);
-	Fixed	big_pos(8388607);
+	Fixed	big_pos(8388607.5f);
 	Fixed	big_neg(-8388608);
 	Fixed	zero(0);
 
 	std::cout << (small_neg <= small_pos) << ' ' << (zero <= small_neg) << ' '
 		<< (big_neg <= big_pos) << ' ' << (zero <= zero) << '\n';
-	expected = "true false true true\n";
+	expected = "1 0 1 1\n";
 TEST_LOGIC_END
 
 TEST_LOGIC_START(lt)
 	Fixed	small_pos(0.00390625f);
 	Fixed	small_neg(-0.00390625f);
-	Fixed	big_pos(8388607);
+	Fixed	big_pos(8388607.5f);
 	Fixed	big_neg(-8388608);
 	Fixed	zero(0);
 
 	std::cout << (small_neg < small_pos) << ' ' << (zero < small_neg) << ' '
 		<< (big_neg < big_pos) << ' ' << (zero < zero) << '\n';
-	expected = "true false true false\n";
+	expected = "1 0 1 0\n";
 TEST_LOGIC_END

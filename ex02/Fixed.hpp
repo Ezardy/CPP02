@@ -1,6 +1,7 @@
 #ifndef EX02_FIXED_HPP
 # define EX02_FIXED_HPP
 
+#include <ieee754.h>
 #include <ostream>
 
 class Fixed {
@@ -43,6 +44,8 @@ public:
 private:
 	static const int	_max;
 	static const int	_min;
+	static const ieee754_float	_maxf;
+	static const ieee754_float	_minf;
 	static const int	_point;
 
 	int					_bits;

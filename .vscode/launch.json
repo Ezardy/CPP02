@@ -7,6 +7,15 @@
 		{
 			"type": "lldb",
 			"request": "launch",
+			"name": "ex02",
+			"program": "${workspaceFolder}/ex02/test",
+			"args": [],
+			"cwd": "${workspaceFolder}",
+			"preLaunchTask": "build ex02"
+		},
+		{
+			"type": "lldb",
+			"request": "launch",
 			"name": "ex01",
 			"program": "${workspaceFolder}/ex01/test",
 			"args": [],

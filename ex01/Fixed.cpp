@@ -74,38 +74,15 @@ void	Fixed::setRawBits(const int raw) {
 }
 
 float	Fixed::toFloat(void) const {
-	union ieee754_float	fp;
+	float	fp = toInt();
+	float	fract = static_cast<float>(_bits - toInt() * (1 << _point))
+		/ (1 << _point);
 
-	if (_bits == 0)
-		fp.f = 0;
-	else if (_bits == std::numeric_limits<int>::min()) {
-		fp.ieee.negative = 1;
-		fp.ieee.exponent = std::numeric_limits<float>::max_exponent - 1
-			+ sizeof(int) * 8 - _point - 1;
-		fp.ieee.mantissa = 0;
-	} else {
-		int		m = _bits;
-		short	e;
-
-		if (_bits < 0) {
-			m *= -1;
-			fp.ieee.negative = 1;
-		} else
-			fp.ieee.negative = 0;
-		for (e = 0; !(m & 1 << std::numeric_limits<int>::digits);
-			m <<= 1, e += 1);
-		m = m << 1
-			>> (sizeof(float) * 8 - std::numeric_limits<float>::digits + 1);
-		e = std::numeric_limits<int>::digits - _point - e
-			+ std::numeric_limits<float>::max_exponent - 1;
-		fp.ieee.exponent = e;
-		fp.ieee.mantissa = m;
-	}
-	return fp.f;
+	return fp + fract;
 }
 
 int	Fixed::toInt(void) const {
-	return _bits >> _point;
+	return _bits / (1 << _point);
 }
 
 const int	Fixed::_point = 8;

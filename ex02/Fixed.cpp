@@ -1,7 +1,6 @@
 #include <iostream>
 #include <limits>
 #include <cmath>
-#include <ieee754.h>
 
 #include "Fixed.hpp"
 
@@ -13,7 +12,7 @@ Fixed::Fixed(const Fixed &other) {
 }
 
 Fixed::Fixed(const int number) : _bits(number << _point) {
-	if (number > Fixed::_max || number < Fixed::_min)
+	if (number > _max || number < _min)
 		throw std::overflow_error("The integer is too big for the Fixed type");
 }
 
@@ -26,7 +25,7 @@ Fixed::Fixed(const float number) : _bits(0) {
 	if (fp.f != fp.f || fp.f == std::numeric_limits<float>::infinity()
 		|| fp.f == -std::numeric_limits<float>::infinity())
 		throw std::invalid_argument("Presented float is NAN or INF");
-	else if (number > Fixed::_max || number < Fixed::_min)
+	else if (number > _maxf.f || number < _minf.f)
 		throw std::overflow_error(
 			"Presented float is out of the Fixed type's range"
 		);
@@ -297,3 +296,22 @@ int	Fixed::getPoint(void) const {
 const int	Fixed::_max = ~0u >> (_point + 1);
 
 const int	Fixed::_min = ~0u << (sizeof(int) * 8 - _point - 1);
+
+const ieee754_float	Fixed::_maxf = {
+	.ieee = {
+		.mantissa = ~0u
+			>> (sizeof(float) * 8 - std::numeric_limits<float>::digits + 1),
+		.exponent = std::numeric_limits<float>::max_exponent - 1
+			+ sizeof(int) * 8 - _point - 2,
+		.negative = 0
+	}
+};
+
+const ieee754_float	Fixed::_minf = {
+	.ieee = {
+		.mantissa = 0,
+		.exponent = std::numeric_limits<float>::max_exponent - 1
+			+ sizeof(int) * 8 - _point - 1,
+		.negative = 1
+	}
+};

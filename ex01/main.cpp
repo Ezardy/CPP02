@@ -30,6 +30,7 @@ static bool	float_special_cases(void);
 static bool	int_overflows(void);
 static bool	float_overflows(void);
 static bool	zeroes(void);
+static bool	rounding(void);
 
 int	main() {
 	bool	success = true;
@@ -39,7 +40,8 @@ int	main() {
 		int_overflows,
 		float_overflows,
 		zeroes,
-		ex01_default_test
+		ex01_default_test,
+		rounding
 	};
 	size_t	tests_count = sizeof(tests) / sizeof(tests[0]);
 	for (size_t i = 0; success && i < tests_count; i += 1) {
@@ -50,6 +52,16 @@ int	main() {
 		std::cout << "OK\n";
 	return success;
 }
+
+TEST_LOGIC_START(rounding)
+	Fixed	a;
+	a.setRawBits(std::numeric_limits<int>::max());
+	std::cout << a << '\n';
+
+
+	success = a.toFloat() == 8388608;
+	expected = "Default constructor called\n8.38861e+06\n";
+TEST_LOGIC_END
 
 TEST_LOGIC_START(zeroes)
 	Fixed	a(0);

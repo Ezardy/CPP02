@@ -145,31 +145,37 @@ Fixed	Fixed::operator/(const Fixed &other) const {
 	if (other._bits == 0)
 		throw std::invalid_argument("Division by zero");
 	else {
-		Fixed		fract;
 		r._bits = toInt() * (1 << _point);
-		const int	iz = zeroes(r._bits);
+		int			iz = zeroes(r._bits);
 		r._bits *= 1 << iz;
 		r._bits /= other._bits;
-		fract._bits = (_bits - toInt() * (1 << _point));
-		const int	fz = zeroes(fract._bits);
-		fract._bits *= 1 << fz;
-		fract._bits /= other._bits;
-		fract._bits /= 1 << (fz - iz);
-		if (r._bits > 0 && fract._bits <=)
-		if (r._bits) {
-			try {
-				if ((r._bits > 0 && r._bits <= std::numeric_limits<int>::max()
-						>> _point)
-					|| (r._bits < 0 && r._bits >= std::numeric_limits<int>::min()
-						/ (1 << _point))) {
-					r._bits *= (1 << _point);
-					r = r + fract;
-				} else
-					throw std::overflow_error("");
-			} catch (const std::overflow_error &e) {
-				throw std::overflow_error("Divide operator overflowed");
-			}
+		int			fract = (_bits - toInt() * (1 << _point));
+		const int	fz = zeroes(fract);
+		fract *= 1 << fz;
+		fract /= other._bits;
+		fract >>= (fz - iz);
+		if (iz && ((r._bits > 0 && fract > std::numeric_limits<int>::max() - r._bits)
+			|| (r._bits < 0 && fract < std::numeric_limits<int>::min() - r._bits))) {
+			iz -= 1;
+			r._bits /= 2;
+			fract /= 2;
 		}
+		bool	overflowed = true;
+		if (r._bits == 0 || fract == 0 ||
+			(r._bits > 0 && fract <= std::numeric_limits<int>::max() - r._bits)
+			|| (r._bits < 0 && fract >= std::numeric_limits<int>::min() - r._bits)) {
+			r._bits += fract;
+			r._bits >>= (iz > _point ? iz - _point : 0);
+			const int	np = _point > iz ? _point - iz : 0;
+			overflowed = false;
+			if (np && ((r._bits > 0 && r._bits > std::numeric_limits<int>::max() >> np)
+				|| (r._bits < 0 && r._bits < std::numeric_limits<int>::min() / (1 << np)))) {
+				overflowed = true;
+			} else
+				r._bits *= 1 << np;
+		}
+		if (overflowed)
+			throw std::overflow_error("Divide operator overflowed");
 	}
 	return r;
 }
@@ -196,7 +202,7 @@ Fixed	&Fixed::operator--(void) {
 	if (_bits > std::numeric_limits<int>::min())
 		_bits -= 1;
 	else
-		throw std::overflow_error("Pre-decrement operator overflow");
+		throw std::overflow_error("Pre-decrement operator overflowed");
 	return *this;
 }
 
@@ -206,7 +212,7 @@ Fixed	Fixed::operator--(int) {
 	if (_bits > std::numeric_limits<int>::min())
 		_bits -= 1;
 	else
-		throw std::overflow_error("Post-decrement operator overflow");
+		throw std::overflow_error("Post-decrement operator overflowed");
 	return tmp;
 }
 
@@ -308,7 +314,13 @@ const ieee754_float	Fixed::_minf = {
 };
 
 int	Fixed::zeroes(const int v) {
-	const ieee754_float	tmp = {static_cast<float>(v)};
-	return sizeof(int) * 8 - tmp.ieee.exponent
-		- std::numeric_limits<float>::max_exponent - 1 + tmp.ieee.negative;
+	int	z;
+	if (v) {
+		const ieee754_float	tmp = {static_cast<float>(v)};
+		short	e = tmp.ieee.exponent;
+		z = sizeof(int) * 8 - e
+			+ std::numeric_limits<float>::max_exponent - 3;
+	} else
+		z = 23;
+	return z;
 }

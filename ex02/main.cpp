@@ -107,7 +107,7 @@ TEST_LOGIC_START(max)
 	std::cout << Fixed::max(a, b) << ' ' << Fixed::max(b, a) << ' '
 		<< Fixed::max(a, c) << '\n';
 
-	expected = "0.00390625f 0.00390625f 0.00390625f\n";
+	expected = "0.00390625 0.00390625 -0.00390625\n";
 TEST_LOGIC_END
 
 TEST_LOGIC_START(min)
@@ -118,7 +118,7 @@ TEST_LOGIC_START(min)
 	std::cout << Fixed::min(a, b) << ' ' << Fixed::min(b, a) << ' '
 		<< Fixed::min(a, c) << '\n';
 
-	expected = "-0.00390625f -0.00390625f -0.00390625f\n";
+	expected = "-0.00390625 -0.00390625 -0.00390625\n";
 TEST_LOGIC_END
 
 TEST_LOGIC_START(post_dec)
@@ -134,8 +134,8 @@ TEST_LOGIC_START(post_dec)
 		std::cout << e.what() << '\n';
 	}
 
-	expected = "-1 -1.00390625\n"
-		"0 -0.00390625"
+	expected = "-1 -1.00391\n"
+		"0 -0.00390625\n"
 		"Post-decrement operator overflowed\n";
 TEST_LOGIC_END
 
@@ -152,8 +152,8 @@ TEST_LOGIC_START(pre_dec)
 		std::cout << e.what() << '\n';
 	}
 
-	expected = "-1.00390625 -1.00390625\n"
-		"-0.00390625 -0.00390625"
+	expected = "-1.00391 -1.00391\n"
+		"-0.00390625 -0.00390625\n"
 		"Pre-decrement operator overflowed\n";
 TEST_LOGIC_END
 
@@ -164,14 +164,14 @@ TEST_LOGIC_START(post_inc)
 	std::cout << a++ << ' ' << a << '\n';
 	std::cout << c++ << ' ' << c << '\n';
 	try {
-		Fixed	b(8388607);
+		Fixed	b = Fixed(8388607) + Fixed(0.99609375f);
 		std::cout << b++ << ' ' << b << '\n';
 	} catch (const std::overflow_error &e) {
 		std::cout << e.what() << '\n';
 	}
 
-	expected = "1 1.00390625\n"
-		"-0.00390625 0"
+	expected = "1 1.00391\n"
+		"-0.00390625 0\n"
 		"Post-increment operator overflowed\n";
 TEST_LOGIC_END
 
@@ -182,13 +182,13 @@ TEST_LOGIC_START(pre_inc)
 	std::cout << ++a << ' ' << a << '\n';
 	std::cout << ++c << ' ' << c << '\n';
 	try {
-		Fixed	b(8388607);
+		Fixed	b = Fixed(8388607) + Fixed(0.99609375f);
 		std::cout << ++b << ' ' << b << '\n';
 	} catch (const std::overflow_error &e) {
 		std::cout << e.what() << '\n';
 	}
 
-	expected = "1.00390625 1.00390625\n"
+	expected = "1.00391 1.00391\n"
 		"0 0\n"
 		"Pre-increment operator overflowed\n";
 TEST_LOGIC_END
@@ -201,6 +201,7 @@ TEST_LOGIC_START(divide)
 	std::cout << (Fixed(-2352.625f) / Fixed(1.0f)) << '\n';
 	std::cout << (Fixed(-2352.625f) / Fixed(-1)) << '\n';
 	std::cout << (Fixed(37836) / Fixed(7.125f)) << '\n';
+	std::cout << (Fixed(-72.65625f) / Fixed(3.125f)) << '\n';
 	try {
 		std::cout << (Fixed(0.0f) / Fixed(0)) << '\n';
 	} catch (const std::invalid_argument &e) {
@@ -228,7 +229,8 @@ TEST_LOGIC_START(divide)
 		"-8388608\n"
 		"-2352.62\n"
 		"2352.62\n"
-		"5310.32\n"
+		"5310.31\n"
+		"-23.25\n"
 		"Division by zero\n"
 		"Division by zero\n"
 		"Divide operator overflowed\n"

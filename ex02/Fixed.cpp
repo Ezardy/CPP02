@@ -123,13 +123,12 @@ Fixed	Fixed::operator*(const Fixed &other) const {
 			Fixed	_if;
 			Fixed	fi;
 			Fixed	ff;
-			const unsigned char	f1 = static_cast<unsigned char>(_bits);
-			const unsigned char	f2 = static_cast<unsigned char>(other._bits);
+			int		f1 = _bits - i1 * (1 << _point);
+			int		f2 = other._bits - i2 * (1 << _point);
 
 			_if._bits = i1 * f2;
 			fi._bits = i2 * f1;
-			ff._bits = f1;
-			ff._bits *= f2;
+			ff._bits = f1 * f2;
 			ff._bits >>= _point;
 			r = ii + _if + fi + ff;
 		} else
@@ -146,15 +145,30 @@ Fixed	Fixed::operator/(const Fixed &other) const {
 	if (other._bits == 0)
 		throw std::invalid_argument("Division by zero");
 	else {
-		r._bits = _bits / other._bits;
+		Fixed		fract;
+		r._bits = toInt() * (1 << _point);
+		const int	iz = zeroes(r._bits);
+		r._bits *= 1 << iz;
+		r._bits /= other._bits;
+		fract._bits = (_bits - toInt() * (1 << _point));
+		const int	fz = zeroes(fract._bits);
+		fract._bits *= 1 << fz;
+		fract._bits /= other._bits;
+		fract._bits /= 1 << (fz - iz);
+		if (r._bits > 0 && fract._bits <=)
 		if (r._bits) {
-			if ((r._bits > 0 && r._bits <= std::numeric_limits<int>::max()
-					>> _point)
-				|| (r._bits < 0 && r._bits >= std::numeric_limits<int>::min()
-					/ (1 << _point)))
-				r._bits *= (1 << _point);
-			else
+			try {
+				if ((r._bits > 0 && r._bits <= std::numeric_limits<int>::max()
+						>> _point)
+					|| (r._bits < 0 && r._bits >= std::numeric_limits<int>::min()
+						/ (1 << _point))) {
+					r._bits *= (1 << _point);
+					r = r + fract;
+				} else
+					throw std::overflow_error("");
+			} catch (const std::overflow_error &e) {
 				throw std::overflow_error("Divide operator overflowed");
+			}
 		}
 	}
 	return r;
@@ -245,38 +259,15 @@ void	Fixed::setRawBits(const int raw) {
 }
 
 float	Fixed::toFloat(void) const {
-	union ieee754_float	fp;
+	float	fp = toInt();
+	float	fract = static_cast<float>(_bits - toInt() * (1 << _point))
+		/ (1 << _point);
 
-	if (_bits == 0)
-		fp.f = 0;
-	else if (_bits == std::numeric_limits<int>::min()) {
-		fp.ieee.negative = 1;
-		fp.ieee.exponent = std::numeric_limits<float>::max_exponent - 1
-			+ sizeof(int) * 8 - _point - 1;
-		fp.ieee.mantissa = 0;
-	} else {
-		int		m = _bits;
-		short	e;
-
-		if (_bits < 0) {
-			m *= -1;
-			fp.ieee.negative = 1;
-		} else
-			fp.ieee.negative = 0;
-		for (e = 0; !(m & 1 << std::numeric_limits<int>::digits);
-			m <<= 1, e += 1);
-		m = m << 1
-			>> (sizeof(float) * 8 - std::numeric_limits<float>::digits + 1);
-		e = std::numeric_limits<int>::digits - _point - e
-			+ std::numeric_limits<float>::max_exponent - 1;
-		fp.ieee.exponent = e;
-		fp.ieee.mantissa = m;
-	}
-	return fp.f;
+	return fp + fract;
 }
 
 int	Fixed::toInt(void) const {
-	return _bits >> _point;
+	return _bits / (1 <<_point);
 }
 
 const int	Fixed::_point = 8;
@@ -315,3 +306,9 @@ const ieee754_float	Fixed::_minf = {
 		.negative = 1
 	}
 };
+
+int	Fixed::zeroes(const int v) {
+	const ieee754_float	tmp = {static_cast<float>(v)};
+	return sizeof(int) * 8 - tmp.ieee.exponent
+		- std::numeric_limits<float>::max_exponent - 1 + tmp.ieee.negative;
+}

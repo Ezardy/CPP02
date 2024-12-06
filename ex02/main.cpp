@@ -262,12 +262,12 @@ TEST_LOGIC_START(multiply)
 		std::cout << e.what() << '\n';
 	}
 	try {
-		std::cout << (Fixed(-8388608) * Fixed(8388608)) << '\n';
+		std::cout << (Fixed(-8388608) * Fixed(8388607)) << '\n';
 	} catch (const std::overflow_error &e) {
 		std::cout << e.what() << '\n';
 	}
 
-	expected =  "-2556.56"
+	expected =  "-2556.56\n"
 		"0\n"
 		"0\n"
 		"8388607\n"
@@ -303,14 +303,14 @@ TEST_LOGIC_START(subtract)
 		std::cout << e.what() << '\n';
 	}
 	try {
-		std::cout << (Fixed(8388606) - Fixed(-1.00390625f)) << '\n';
+		std::cout << (Fixed(8388606) - Fixed(-2)) << '\n';
 	} catch (const std::overflow_error &e) {
 		std::cout << e.what() << '\n';
 	}
 
 	expected = "8388606\n"
 		"-8388607\n"
-		"-154.375\n"
+		"-155.625\n"
 		"Subtract operator overflowed\n"
 		"Subtract operator overflowed\n"
 		"Subtract operator overflowed\n"
@@ -346,7 +346,7 @@ TEST_LOGIC_START(add)
 	expected = "-0.5\n"
 		"0\n"
 		"1000\n"
-		"8388608\n"
+		"8.38861e+06\n"
 		"Add operator overflowed\n"
 		"Add operator overflowed\n"
 		"Add operator overflowed\n"

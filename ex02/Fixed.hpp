@@ -42,6 +42,8 @@ public:
 	int		toInt(void) const;
 	int		getPoint(void) const;
 private:
+	static int	zeroes(const int v);
+
 	static const int	_max;
 	static const int	_min;
 	static const ieee754_float	_maxf;

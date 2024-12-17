@@ -9,16 +9,16 @@ test: $(obj)
 iflags=-Wall -Werror -Wextra -std=c++98
 command=c++ $(iflags) -o $@ -c $<
 
-main.o: main.cpp Point.hpp Fixed.hpp Makefile
+main.o: main.cpp Point.hpp Fixed.hpp ieee754.h Makefile
 	$(command)
 
-bsp.o: bsp.cpp Point.hpp Fixed.hpp Makefile
+bsp.o: bsp.cpp Point.hpp Fixed.hpp ieee754.h Makefile
 	$(command)
 
-Fixed.o: Fixed.cpp Fixed.hpp Makefile
+Fixed.o: Fixed.cpp Fixed.hpp ieee754.h Makefile
 	$(command)
 
-Point.o: Point.cpp Point.hpp Fixed.hpp Makefile
+Point.o: Point.cpp Point.hpp Fixed.hpp ieee754.h Makefile
 	$(command)
 
 clean:

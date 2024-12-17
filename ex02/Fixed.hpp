@@ -1,7 +1,7 @@
 #ifndef EX02_FIXED_HPP
 # define EX02_FIXED_HPP
 
-#include <ieee754.h>
+#include "ieee754.h"
 #include <ostream>
 
 class Fixed {

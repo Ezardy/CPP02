@@ -11,10 +11,10 @@ debug: test
 test: $(obj)
 	c++ -o $@ $(obj)
 
-Fixed.o: Fixed.cpp Fixed.hpp Makefile
+Fixed.o: Fixed.cpp Fixed.hpp ieee754.h Makefile
 	$(command)
 
-main.o: main.cpp Fixed.hpp Makefile
+main.o: main.cpp Fixed.hpp ieee754.h Makefile
 	$(command)
 
 clean:
